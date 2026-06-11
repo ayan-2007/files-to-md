@@ -170,6 +170,7 @@ st.markdown("""
         background: linear-gradient(90deg, #0f9f72 0%, #10c98e 100%) !important;
     }
 </style>
+""", unsafe_allow_html=True)
 
 
 st.markdown("""
