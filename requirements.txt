@@ -1,0 +1,11 @@
+streamlit
+pymupdf
+pillow
+paddleocr
+numpy
+python-docx
+markdownify
+beautifulsoup4
+striprtf
+ebooklib
+paddlepaddle
