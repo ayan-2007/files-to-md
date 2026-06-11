@@ -1,15 +1,13 @@
-# Use a Python base image with built-in C++ build tools for PaddleOCR
-FROM python:3.9-slim
+# Use a slim Python image with only the OCR binary installed
+FROM python:3.11-slim
 
-# Install system dependencies for PaddleOCR and OpenCV
+# Install system dependencies for both PaddleOCR (OpenCV/Paddle) and Tesseract
 RUN apt-get update && apt-get install -y \
-    build-essential \
+    tesseract-ocr \
+    tesseract-ocr-eng \
     libgl1-mesa-glx \
     libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    tesseract-ocr \
+    libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

@@ -7,7 +7,7 @@ from utils import normalize_whitespace
 from ocr_engine import OCRService
 
 try:
-    from docx import Document
+    from docx import Document 
 except Exception:
     Document = None
 

@@ -1,11 +1,9 @@
 streamlit
 pymupdf
 pillow
-paddleocr
-numpy
+pytesseract
 python-docx
 markdownify
 beautifulsoup4
 striprtf
 ebooklib
-paddlepaddle
