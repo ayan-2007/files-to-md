@@ -3,7 +3,7 @@ import tempfile
 from PIL import Image
 import fitz
 
-from utils import normalize_whitespace
+from utils import normalize_whitespace, is_gibberish
 from ocr_engine import OCRService
 
 try:
@@ -78,7 +78,10 @@ def extract_pdf_to_markdown(path, use_ocr=True, ocr_lang="en"):
         # First: try selectable text
         text = page.get_text("text").strip()
 
-        if text:
+        # Check if the selectable text is valid (not empty, not gibberish, and long enough to be standard content)
+        is_text_valid = text and not is_gibberish(text) and len(text) >= 100
+
+        if is_text_valid:
             output.append(normalize_whitespace(text) + "\n")
         else:
             # Fallback: OCR for scanned/image PDFs
@@ -89,11 +92,20 @@ def extract_pdf_to_markdown(path, use_ocr=True, ocr_lang="en"):
                 try:
                     pix.save(img_path)
                     img = Image.open(img_path).convert("RGB")
-                    text = ocr.image_to_text(img)
+                    ocr_text = ocr.image_to_text(img)
+                    
+                    if ocr_text.strip():
+                        output.append(normalize_whitespace(ocr_text) + "\n")
+                    elif text:
+                        output.append(normalize_whitespace(text) + "\n")
+                except Exception as e:
+                    # Log the error but keep whatever selectable text we had
                     output.append(normalize_whitespace(text) + "\n")
                 finally:
                     if os.path.exists(img_path):
                         os.remove(img_path)
+            elif text:
+                output.append(normalize_whitespace(text) + "\n")
 
         tables = extract_pdf_tables(page)
         if tables:
@@ -170,3 +182,14 @@ def epub_to_md_from_bytes(data):
         return normalize_whitespace("\n\n---\n\n".join(parts)) + "\n"
     finally:
         os.remove(tmp_path)
+
+
+def image_to_md_from_bytes(data, ocr_lang="en"):
+    from PIL import Image
+    import io
+    from ocr_engine import OCRService
+    
+    ocr = OCRService(lang=ocr_lang)
+    img = Image.open(io.BytesIO(data)).convert("RGB")
+    text = ocr.image_to_text(img)
+    return f"# Image OCR Output\n\n{text}\n"

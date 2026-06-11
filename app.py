@@ -9,7 +9,8 @@ from converters import (
     docx_to_md_from_bytes,
     html_to_md_from_bytes,
     rtf_to_md_from_bytes,
-    epub_to_md_from_bytes
+    epub_to_md_from_bytes,
+    image_to_md_from_bytes
 )
 
 st.set_page_config(
@@ -117,15 +118,7 @@ if uploaded_files:
                 elif ext == ".epub":
                     md = epub_to_md_from_bytes(data)
                 elif ext in [".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"]:
-                    # Images are OCR'd too for best practical support
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
-                        tmp.write(data)
-                        img_path = tmp.name
-                    try:
-                        md = extract_pdf_to_markdown(img_path, use_ocr=True, ocr_lang=ocr_lang)  # fallback path
-                    finally:
-                        if os.path.exists(img_path):
-                            os.remove(img_path)
+                    md = image_to_md_from_bytes(data, ocr_lang=ocr_lang)
                 else:
                     raise ValueError(f"Unsupported file: {name}")
 
